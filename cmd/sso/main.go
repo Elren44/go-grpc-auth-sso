@@ -4,6 +4,7 @@ import (
 	"log/slog"
 	"os"
 
+	"github.com/Elren44/go-grpc-auth-sso/internal/app"
 	"github.com/Elren44/go-grpc-auth-sso/internal/config"
 	"github.com/Elren44/go-grpc-auth-sso/internal/lib/logger/handlers/slogpretty"
 )
@@ -18,10 +19,12 @@ func main() {
 	cfg := config.MustLoad()
 	log := setupLogger(cfg.Env)
 
-	log.Info("Config loaded", slog.Any("cfg", cfg))
-	log.Debug("Debug message")
-	log.Warn("Warn message")
-	log.Error("Error message")
+	log.Info("Starting application", slog.Any("cfg", cfg))
+
+	application := app.New(log, cfg.GRPC.Port, cfg.StoragePath, cfg.TokenTTL)
+
+	application.GRPCServer.MustRun()
+
 }
 
 func setupLogger(env string) *slog.Logger {
